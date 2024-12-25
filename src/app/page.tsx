@@ -10,7 +10,7 @@ export default async function Page() {
     <PageWrapper className="grid grid-cols-4 gap-4">
       {companies.map((company) => {
         return (
-          <Card>
+          <Card key={company.id}>
             <CardHeader>
               <CardTitle>{company.name}</CardTitle>
               {/* <CardDescription>Card Description</CardDescription> */}
