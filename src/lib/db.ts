@@ -1,5 +1,9 @@
 import prisma from "./prisma";
 
+async function getAllCompanies() {
+  return await prisma.company.findMany();
+}
+
 async function getCompany(id: string) {
   return await prisma.company.findUnique({
     where: { id },
@@ -49,4 +53,11 @@ async function returnKey(keyId: string) {
   });
 }
 
-export { getCompany, createKey, deleteKey, borrowKey, returnKey };
+export {
+  getAllCompanies,
+  getCompany,
+  createKey,
+  deleteKey,
+  borrowKey,
+  returnKey,
+};
