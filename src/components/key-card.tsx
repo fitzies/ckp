@@ -52,7 +52,7 @@ export default function KeyCard({ k }: { k: Key & { borrower: Borrower } }) {
           action={async () => {
             "use server";
 
-            await returnKey(k.id);
+            await returnKey(k.id, k.companyId);
             revalidatePath(`/company/${k.companyId}`);
           }}
         >
@@ -73,7 +73,11 @@ export default function KeyCard({ k }: { k: Key & { borrower: Borrower } }) {
               throw new Error("You never submitted a proper Name or NRIC");
             }
 
-            await borrowKey(k.id, { name: name, maskedNric: maskNric(nric) });
+            await borrowKey(
+              k.id,
+              { name: name, maskedNric: maskNric(nric) },
+              k.companyId
+            );
             revalidatePath(`/company/${k.companyId}`);
           }}
         >

@@ -27,8 +27,9 @@ model Key {
   borrower   Borrower? @relation(fields: [borrowerId], references: [maskedNric])
   borrowerId String?
 
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId String
+  company     Company       @relation(fields: [companyId], references: [id])
+  companyId   String
+  Transaction Transaction[]
 }
 
 model Borrower {
@@ -36,4 +37,15 @@ model Borrower {
   name       String
 
   keys Key[]
+}
+
+model Transaction {
+  id        String @id @default(cuid())
+  companyId String
+
+  keyId String
+  key   Key    @relation(fields: [keyId], references: [id]) // Relating to the Key model
+
+  action    String // "BORROWED" or "RETURNED"
+  timestamp DateTime @default(now())
 }

@@ -1,3 +1,4 @@
+import DownloadLogs from "@/components/download-logs";
 import KeyCard from "@/components/key-card";
 import NotFound from "@/components/not-found";
 import PageWrapper from "@/components/page-wrapper";
@@ -12,7 +13,7 @@ import {
 import { DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-import { createKey, deleteKey, getCompany } from "@/lib/db";
+import { createKey, deleteKey, getCompany, getTransactions } from "@/lib/db";
 import { Borrower, Key } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
@@ -24,13 +25,16 @@ export default async function Page({
   const { companyId } = await params;
   const company = await getCompany(companyId);
 
+  const logs = await getTransactions(companyId);
+
   if (!company) {
     return <NotFound />;
   }
 
   return (
     <PageWrapper className="flex flex-col">
-      <div className="w-full flex justify-end">
+      <div className="w-full flex justify-end gap-4">
+        <DownloadLogs logs={logs} />
         <Popup
           title="Manage Keys"
           description=""

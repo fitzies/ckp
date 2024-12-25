@@ -1,7 +1,7 @@
 import prisma from "./prisma";
 
 async function getAllCompanies() {
-  return await prisma.company.findMany();
+  return await prisma.company.findMany({ include: { keys: true } });
 }
 
 async function getCompany(id: string) {
@@ -25,7 +25,8 @@ async function deleteKey(id: string) {
 
 async function borrowKey(
   keyId: string,
-  borrowerData: { name: string; maskedNric: string }
+  borrowerData: { name: string; maskedNric: string },
+  companyId: string
 ) {
   // Upsert the borrower (create if not exists)
   const borrower = await prisma.borrower.upsert({
@@ -40,16 +41,46 @@ async function borrowKey(
   });
 
   // Update the key to associate it with the borrower
-  return await prisma.key.update({
+  await prisma.key.update({
     where: { id: keyId },
     data: { borrowerId: borrower.maskedNric },
   });
+
+  // Log the borrow transaction
+  await prisma.transaction.create({
+    data: {
+      companyId,
+      keyId,
+      action: "BORROWED",
+      timestamp: new Date(),
+    },
+  });
 }
 
-async function returnKey(keyId: string) {
-  return await prisma.key.update({
+async function returnKey(keyId: string, companyId: string) {
+  // Disconnect the key from the borrower
+  await prisma.key.update({
     where: { id: keyId },
-    data: { borrowerId: null }, // Disconnect the key from the borrower
+    data: { borrowerId: null },
+  });
+
+  // Log the return transaction
+  await prisma.transaction.create({
+    data: {
+      companyId,
+      keyId,
+      action: "RETURNED",
+      timestamp: new Date(),
+    },
+  });
+}
+
+async function getTransactions(companyId: string) {
+  return await prisma.transaction.findMany({
+    where: { companyId },
+    include: {
+      key: true, // Assuming there's a relation to fetch the key name
+    },
   });
 }
 
@@ -60,4 +91,5 @@ export {
   deleteKey,
   borrowKey,
   returnKey,
+  getTransactions,
 };
