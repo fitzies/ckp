@@ -36,12 +36,16 @@ model Borrower {
   maskedNric String @id
   name       String
 
-  keys Key[]
+  keys        Key[]
+  Transaction Transaction[]
 }
 
 model Transaction {
   id        String @id @default(cuid())
   companyId String
+
+  borrower   Borrower @relation(fields: [borrowerId], references: [maskedNric])
+  borrowerId String
 
   keyId String
   key   Key    @relation(fields: [keyId], references: [id]) // Relating to the Key model

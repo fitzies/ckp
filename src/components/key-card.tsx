@@ -52,7 +52,7 @@ export default function KeyCard({ k }: { k: Key & { borrower: Borrower } }) {
           action={async () => {
             "use server";
 
-            await returnKey(k.id, k.companyId);
+            await returnKey(k.id, k.companyId, k.borrower.maskedNric);
             revalidatePath(`/company/${k.companyId}`);
           }}
         >

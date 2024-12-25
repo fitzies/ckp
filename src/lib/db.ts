@@ -49,6 +49,7 @@ async function borrowKey(
   // Log the borrow transaction
   await prisma.transaction.create({
     data: {
+      borrowerId: borrower.maskedNric,
       companyId,
       keyId,
       action: "BORROWED",
@@ -57,7 +58,7 @@ async function borrowKey(
   });
 }
 
-async function returnKey(keyId: string, companyId: string) {
+async function returnKey(keyId: string, companyId: string, borrowerId: string) {
   // Disconnect the key from the borrower
   await prisma.key.update({
     where: { id: keyId },
@@ -67,6 +68,7 @@ async function returnKey(keyId: string, companyId: string) {
   // Log the return transaction
   await prisma.transaction.create({
     data: {
+      borrowerId,
       companyId,
       keyId,
       action: "RETURNED",
@@ -80,6 +82,7 @@ async function getTransactions(companyId: string) {
     where: { companyId },
     include: {
       key: true, // Assuming there's a relation to fetch the key name
+      borrower: true,
     },
   });
 }
